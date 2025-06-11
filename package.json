@@ -1,0 +1,21 @@
+{
+  "name": "lab_project_sample",
+  "version": "1.0.0",
+  "description": "this is a sample project for Lab's project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gongjian1981/lab_project_sample.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gongjian1981/lab_project_sample/issues"
+  },
+  "homepage": "https://github.com/gongjian1981/lab_project_sample#readme"
+}

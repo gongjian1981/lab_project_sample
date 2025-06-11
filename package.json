@@ -17,5 +17,14 @@
   "bugs": {
     "url": "https://github.com/gongjian1981/lab_project_sample/issues"
   },
-  "homepage": "https://github.com/gongjian1981/lab_project_sample#readme"
+  "homepage": "https://github.com/gongjian1981/lab_project_sample#readme",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.7",
+    "@types/react-dom": "^19.1.6",
+    "typescript": "^5.8.3"
+  }
 }

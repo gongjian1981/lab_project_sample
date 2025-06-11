@@ -1,124 +1,124 @@
 import React, { useState } from 'react';
 import type { EvaluationItem } from '../Types/evaluation';
-import { filterEvaluationsByMonth } from '../Services/filter-evaluations';
-import { getEvaluationsByDay } from '../Services/get-evaluations-by-day';
-import { countEvaluationsInWeek } from '../Services/count-evaluations-in-week';
+import { getEvaluationsByDayMap } from '../Services/get-evaluations-by-day-map';
 
-interface HeatmapPageProps {
+export interface HeatmapPageProps {
   data: EvaluationItem[];
-  onNavigate: (page: string) => void;
+  onNavigate: (to: string) => void;
 }
 
-export const HeatmapPage: React.FC<HeatmapPageProps> = ({ data, onNavigate }) => {
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth() + 1);
+const HeatmapPage: React.FC<HeatmapPageProps> = ({ data, onNavigate }) => {
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedCourse, setSelectedCourse] = useState('');
 
-  const filtered = filterEvaluationsByMonth(data, year, month)
-    .filter(item => !selectedCourse || item.course_code === selectedCourse);
+  const courses = Array.from(new Set(data.map(d => d.course_code)));
+  const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const courseCodes = Array.from(new Set(data.map(d => d.course_code))).filter(Boolean);
-  const dayHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const filteredData = selectedCourse
+    ? data.filter(item => item.course_code === selectedCourse)
+    : data;
 
-  const getCalendarMatrix = (): Date[][] => {
-    const first = new Date(year, month - 1, 1);
-    const last = new Date(year, month, 0);
-    const matrix: Date[][] = [];
-
-    let current = new Date(first);
-    const offset = (current.getDay() + 6) % 7;
-    current.setDate(current.getDate() - offset);
-
-    while (current <= last || current.getDay() !== 1) {
-      const week: Date[] = [];
-      for (let i = 0; i < 7; i++) {
-        week.push(new Date(current));
-        current.setDate(current.getDate() + 1);
-      }
-      matrix.push(week);
-    }
-
-    return matrix;
-  };
-
-  const calendar = getCalendarMatrix();
+  const evaluationsByDay = getEvaluationsByDayMap(filteredData, selectedYear, selectedMonth);
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <div className="mb-4 flex gap-4">
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Evaluation Heatmap</h1>
+
+      <div className="flex space-x-4 mb-4">
         <label>
           Year
-          <select value={year} onChange={e => setYear(Number(e.target.value))}>
-            {Array.from({ length: 10 }, (_, i) => today.getFullYear() - 5 + i).map(y => (
-              <option key={y} value={y}>{y}</option>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="ml-2 border p-2"
+          >
+            {[2024, 2025].map((year) => (
+              <option key={year} value={year}>{year}</option>
             ))}
           </select>
         </label>
 
         <label>
           Month
-          <select value={month} onChange={e => setMonth(Number(e.target.value))}>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-              <option key={m} value={m}>{m}</option>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="ml-2 border p-2"
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+              <option key={month} value={month}>{month}</option>
             ))}
           </select>
         </label>
 
-        {courseCodes.length > 0 && (
-          <label>
-            Course
-            <select value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)}>
-              <option value="">All</option>
-              {courseCodes.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </label>
-        )}
+        <label>
+          Course
+          <select
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+            className="ml-2 border p-2"
+          >
+            <option value="">All</option>
+            {courses.map(course => (
+              <option key={course} value={course}>{course}</option>
+            ))}
+          </select>
+        </label>
+
+        <button
+          onClick={() => onNavigate('upload')}
+          className="ml-auto bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Go to Upload
+        </button>
       </div>
 
-      <table className="table-fixed border-collapse w-full text-center border text-sm">
+      <table className="table-fixed w-full border-collapse">
         <thead>
           <tr>
-            {dayHeaders.map(day => (
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
               <th key={day} className="border p-2 bg-gray-100">{day}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {calendar.map((week, wi) => {
-            const highlight = countEvaluationsInWeek(filtered, week) >= 3;
+          {(() => {
+            const rows: React.ReactElement[] = [];
+            let cells: React.ReactElement[] = [];
+            for (let day of daysArray) {
+              const date = new Date(selectedYear, selectedMonth - 1, day);
+              const weekday = date.getDay();
 
-            return (
-              <tr key={wi} className={highlight ? "bg-red-300" : ""}>
-                {week.map((day, di) => {
-                  const items = getEvaluationsByDay(filtered, day.toISOString().slice(0, 10));
-                  return (
-                    <td key={di} className="border align-top p-1 text-left">
-                      <div className="font-bold">{day.getMonth() + 1 === month ? day.getDate() : ''}</div>
-                      {items.map((ev, i) => (
-                        <div key={i}>
-                          {ev.course_code} - {ev.evaluation_type}
-                        </div>
-                      ))}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+              if (day === 1) {
+                cells = Array(weekday).fill(<td key={`empty-${day}-${weekday}`} />);
+              }
+
+              const evaluations = evaluationsByDay[day] || [];
+              cells.push(
+                <td key={day} className="border p-2 align-top">
+                  <div className="font-bold">{day}</div>
+                  {evaluations.map((item, index) => (
+                    <div key={index}>
+                      {`${item.course_code} - ${item.evaluation_type}`}
+                    </div>
+                  ))}
+                </td>
+              );
+
+              if (date.getDay() === 6 || day === daysArray[daysArray.length - 1]) {
+                rows.push(<tr key={`row-${day}`}>{cells}</tr>);
+                cells = [];
+              }
+            }
+            return rows;
+          })()}
         </tbody>
       </table>
-
-      <div className="mt-6 text-center">
-        <button
-          onClick={() => onNavigate('upload')}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Go to Upload
-        </button>
-      </div>
     </div>
   );
 };
+
+export default HeatmapPage;

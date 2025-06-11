@@ -1,4 +1,4 @@
-import type { EvaluationItem } from '../../Types/evaluation';
+import type { EvaluationItem } from '../Types/evaluation';
 
 /**
  * Counts how many evaluations fall within the given week.

@@ -1,4 +1,4 @@
-import type { EvaluationItem } from '../../Types/evaluation';
+import type { EvaluationItem } from '../Types/evaluation';
 
 /**
  * Returns all evaluations due on the specified day.

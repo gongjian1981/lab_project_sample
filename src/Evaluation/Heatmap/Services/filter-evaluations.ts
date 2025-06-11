@@ -1,4 +1,4 @@
-import type { EvaluationItem } from '../../Types/evaluation';
+import type { EvaluationItem } from '../Types/evaluation';
 
 /**
  * Filters evaluation items by year and month.

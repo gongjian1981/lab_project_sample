@@ -1,7 +1,7 @@
-import { filterEvaluationsByMonth } from './filter-evaluations';
-import type { EvaluationItem } from '../../Types/evaluation';
+import { getEvaluationsByDay } from './get-evaluations-by-day';
+import type { EvaluationItem } from '../Types/evaluation';
 
-describe('filterEvaluationsByMonth', () => {
+describe('getEvaluationsByDay', () => {
   const mockData: EvaluationItem[] = [
     {
       evaluation_id: '1',
@@ -13,25 +13,25 @@ describe('filterEvaluationsByMonth', () => {
       evaluation_id: '2',
       course_code: 'INFO8171-25S-S2',
       evaluation_type: 'Quiz',
-      dueDay: '2025-07-10',
+      dueDay: '2025-06-15',
     },
     {
       evaluation_id: '3',
       course_code: 'MATH1010-25S-S1',
       evaluation_type: 'Assignment',
-      dueDay: '2025-06-05',
+      dueDay: '2025-06-16',
     },
   ];
 
-  it('filters evaluations by year and month', () => {
-    const result = filterEvaluationsByMonth(mockData, 2025, 6);
+  it('returns all evaluations on the specified day', () => {
+    const result = getEvaluationsByDay(mockData, '2025-06-15');
     expect(result.length).toBe(2);
     expect(result.map(e => e.evaluation_id)).toContain('1');
-    expect(result.map(e => e.evaluation_id)).toContain('3');
+    expect(result.map(e => e.evaluation_id)).toContain('2');
   });
 
-  it('returns empty array if no matches found', () => {
-    const result = filterEvaluationsByMonth(mockData, 2024, 6);
+  it('returns an empty array if no evaluations on that day', () => {
+    const result = getEvaluationsByDay(mockData, '2025-06-17');
     expect(result.length).toBe(0);
   });
 });

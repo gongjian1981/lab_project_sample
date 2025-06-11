@@ -1,5 +1,5 @@
 import { countEvaluationsInWeek } from './count-evaluations-in-week';
-import type { EvaluationItem } from '../../Types/evaluation';
+import type { EvaluationItem } from '../Types/evaluation';
 
 describe('countEvaluationsInWeek', () => {
   const mockData: EvaluationItem[] = [

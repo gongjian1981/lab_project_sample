@@ -2,9 +2,17 @@
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
  */
+import { defaults } from 'jest-config';
+
 
 /** @type {import('jest').Config} */
 const config = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
+  moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx'],
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
